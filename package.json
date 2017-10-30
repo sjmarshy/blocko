@@ -18,5 +18,11 @@
   "license": "CC0-1.0",
   "devDependencies": {
     "electron": "~1.7.8"
+  },
+  "dependencies": {
+    "choo": "^6.5.1",
+    "polished": "^1.8.1",
+    "ramda": "^0.25.0",
+    "styled-elements": "^1.0.14"
   }
 }
