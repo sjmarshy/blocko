@@ -73,7 +73,12 @@ function selectedFile(state, emitter) {
                 if (err) {
                     state.error = err;
                 } else {
-                    state.currentFile = Object.assign({}, file, { contents });
+                    file.selected = true;
+                    file.contents = contents
+                        .split('\n\n')
+                        .filter(x => x !== '');
+
+                    state.currentFile = file;
                 }
 
                 emitter.emit('render');

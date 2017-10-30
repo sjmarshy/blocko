@@ -12,13 +12,25 @@ const Wrapper = styled.div`
     color: ${colors.text};
     height: 100vh;
     padding: 10px;
+
+    overflow-y: scroll;
+`;
+
+const Chunk = styled.div`
+    border-bottom: 3px solid ${colors.active};
+    cursor: pointer;
 `;
 
 // TODO: better name =)
 function Display(file) {
     return Wrapper(
         { 'data-component': 'Display' },
-        raw(marked(file.contents || 'chose a file <-'))
+        file.contents
+            ? file.contents
+                  .map(x => marked(x))
+                  .map(raw)
+                  .map(Chunk)
+            : 'chose a file <--'
     );
 }
 
