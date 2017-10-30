@@ -1,9 +1,11 @@
 const fs = require('fs');
+const path = require('path');
 const choo = require('choo');
 const html = require('choo/html');
 const styled = require('styled-elements').default;
 const injectGlobal = require('styled-elements').injectGlobal;
-const R = require('ramda');
+const { fresh: freshFile } = require('./file');
+const events = require('./events');
 
 /* pages */
 
@@ -11,7 +13,7 @@ const mainPage = require('./pages/Main');
 
 /* global stuff */
 
-window.initialState = { files: [] };
+window.initialState = { files: new Map(), selectedFile: null };
 
 injectGlobal`
     @font-face {
@@ -20,6 +22,10 @@ injectGlobal`
         font-weight: 500;
         font-style: normal;
     }
+
+    body {
+        font-family: Fira;
+    }
 `;
 
 /* end global stuff */
@@ -27,14 +33,15 @@ injectGlobal`
 const app = choo();
 
 app.use(readNotes);
+app.use(selectedFile);
+
+/* routes */
+
 app.route('/', mainPage);
 
-app.mount('[data-app]');
+/* end routes */
 
-const freshFile = R.curryN(2, (dir, fileName) => ({
-    dir,
-    fileName,
-}));
+app.mount('[data-app]');
 
 function readNotes(state, emitter) {
     const NOTES_DIR = process.env.NOTES_DIR;
@@ -42,12 +49,36 @@ function readNotes(state, emitter) {
         fs.readdir(NOTES_DIR, (err, files) => {
             if (err) {
                 state.error = err;
-                emitter.emit('render');
-                return;
+            } else {
+                state.files = files
+                    .map(freshFile(NOTES_DIR))
+                    .reduce(
+                        (memo, file) => memo.set(file.base, file),
+                        new Map()
+                    );
             }
-            state.files = files.map(freshFile(NOTES_DIR));
+
             emitter.emit('render');
-            return;
+            return state;
         });
+    });
+}
+
+function selectedFile(state, emitter) {
+    emitter.on(events.SET_CURRENT_FILE, file => {
+        fs.readFile(
+            path.resolve(file.directory, file.base),
+            'utf8',
+            (err, contents) => {
+                if (err) {
+                    state.error = err;
+                } else {
+                    state.currentFile = Object.assign({}, file, { contents });
+                }
+
+                emitter.emit('render');
+                return state;
+            }
+        );
     });
 }

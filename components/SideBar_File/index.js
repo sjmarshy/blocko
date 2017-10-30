@@ -4,12 +4,12 @@ const colors = require('../../colors');
 const lighten = require('polished').lighten;
 
 const FileName = styled.h2`
-    color: white;
+    color: ${colors.text};
     font-size: 16px;
 `;
 
 const File = styled.div`
-    padding: 2%;
+    padding: 10px;
     border-bottom: 1px solid white;
     cursor: pointer;
 
@@ -18,8 +18,15 @@ const File = styled.div`
     }
 `;
 
-function file({ name }) {
-    return File({ 'data-component': 'File' }, FileName(name));
+function file(f) {
+    const { name, setCurrentFile } = f;
+    return File(
+        {
+            'data-component': 'File',
+            onclick: () => setCurrentFile(f),
+        },
+        FileName(name)
+    );
 }
 
 module.exports = file;

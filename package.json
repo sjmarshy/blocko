@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "choo": "^6.5.1",
+    "marked": "^0.3.6",
     "polished": "^1.8.1",
     "ramda": "^0.25.0",
     "styled-elements": "^1.0.14"

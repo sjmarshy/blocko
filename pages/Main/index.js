@@ -1,41 +1,21 @@
 const styled = require('styled-elements').default;
-const parsePath = require('path').parse;
+const { curryN } = require('ramda');
 
-/* consts */
-
-const colors = require('../../colors');
-
-/* components */
-
-const File = require('../../components/File');
-
-const List = styled.ul`
-    margin: 0;
-    padding: 0;
-    background-color: ${colors.background};
-
-    grid-column-start: 1;
-    grid-column-end: span 3;
-`;
+const SideBar = require('../../components/SideBar');
+const Display = require('../../components/Display');
 
 const MainWrapper = styled.div`
     display: grid;
     grid-template-columns: repeat(12, 1fr); /* 12 col grid */
     grid-column-gap: 12px;
-
-    font-family: Fira;
 `;
 
 function Main(state, emit) {
-    return MainWrapper(
-        { 'data-component': 'main' },
-        List(
-            state.files
-                // TODO: break out & compose
-                .map(({ fileName }) => parsePath(fileName).name)
-                .map(name => File({ name }))
-        )
-    );
+    console.log(state);
+    return MainWrapper({ 'data-component': 'main' }, [
+        SideBar(emit, Array.from(state.files.values())),
+        Display(state.currentFile || {}),
+    ]);
 }
 
 module.exports = Main;
